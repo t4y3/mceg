@@ -1,0 +1,1 @@
+{"dependencies":[{"name":"./lib/kmeans","loc":{"line":3,"column":25}}],"generated":{"js":"'use strict';\n\nmodule.exports = require('./lib/kmeans');\n"},"hash":"b6d79cd0cf8b368890c04ea14d3c753d"}

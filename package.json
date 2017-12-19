@@ -13,7 +13,8 @@
     "reset-css": "^2.2.1"
   },
   "scripts": {
-    "start": "parcel src/index.html -d docs"
+    "start": "parcel src/index.html -d docs",
+    "build": "rm -rf docs/ && parcel build src/index.html -d docs --public-url ./"
   },
   "repository": {
     "type": "git",
