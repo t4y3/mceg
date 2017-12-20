@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'BrixtonLt';
+  src: url("../font/BrixtonLt.ttf");
+}
+
 * {
   box-sizing: border-box;
 }
@@ -12,13 +17,15 @@ img {
  */
 html {
   font-size: 62.5% !important;
+  font-family: 'BrixtonLt' !important;
 }
 
 body {
-  height: 100vh;
+  // height: 100vh;
   background-image: url("../img/bg.png");
   background-size: cover;
   background-position: center;
+  padding-bottom: 80px !important;
 }
 
 
@@ -59,7 +66,7 @@ body {
       bottom: 0;
       left: 0;
       right: 0;
-      margin: 20px;
+      margin: 5%;
       border: 4px dashed #fff;
     }
   }
@@ -77,7 +84,7 @@ body {
   display: none;
   justify-content: center;
   align-items: center;
-  width: 80%;
+  width: 70%;
   margin: 32px auto 32px;
 
   &.show {
@@ -86,6 +93,10 @@ body {
 
   .cropper-image {
     max-width: 100%;
+
+    #cropper-canvas {
+      width: 100%;
+    }
   }
 
   .cropper-preview {
@@ -116,20 +127,34 @@ body {
 /**
  * 減色実行ボタン
  */
-#run-btn {
+.run-btn-area {
   display: none;
-  width: 100px;
-  margin: 0 auto 32px;
-  padding: 10px;
-  border-radius: 4px;
+  width: 100%;
+  padding: 16px 0;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
   text-align: center;
-  font-size: 3rem;
-  color: #444;
-  background-color: #ccc;
-  cursor: pointer;
+  background-color: rgba(140, 140, 140, 0.5);
+  border-top: 1px solid #fff;
 
   &.show {
     display: block;
+  }
+
+  #run-btn {
+    display: block;
+    width: 100px;
+    margin: 0 auto;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 3rem;
+    color: #444;
+    background-color: #ccc;
+    cursor: pointer;
+    text-decoration: none;
   }
 }
 

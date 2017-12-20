@@ -27,9 +27,8 @@
         </div>
       </div>
     </div>
-    <p id="run-btn">Run</p>
     <!-- 減色後の表示 -->
-    <div class="result-area">
+    <div class="result-area" id="result-area">
       <canvas id="result" width="320" height="320"></canvas>
       <canvas id="result-grid" width="320" height="320"></canvas>
       <canvas id="result-highlight" width="320" height="320"></canvas>
@@ -63,23 +62,26 @@
           <div class="color-code__bar">
             <div class="color-code__bar-inner"></div>
           </div>
-          <div class="color-code__number">0(0)</div>
+          <div class="color-code__number">0 (0)</div>
         </li>
         <li class="color-code-list__item color-code-list__item--green">
           <span class="color-code__head">G</span>
           <div class="color-code__bar">
             <div class="color-code__bar-inner"></div>
           </div>
-          <div class="color-code__number">0(0)</div>
+          <div class="color-code__number">0 (0)</div>
         </li>
         <li class="color-code-list__item color-code-list__item--blue">
           <span class="color-code__head">B</span>
           <div class="color-code__bar">
             <div class="color-code__bar-inner"></div>
           </div>
-          <div class="color-code__number">0(0)</div>
+          <div class="color-code__number">0 (0)</div>
         </li>
       </ul>
+    </div>
+    <div class="run-btn-area">
+      <a id="run-btn" href="#result-area">Run</a>
     </div>
   </body>
 </html>

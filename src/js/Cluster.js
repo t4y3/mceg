@@ -9,6 +9,8 @@ const GRID_SIZE = 10;
 const CANVAS_DISP_SIZE = CANVAS_SIZE * GRID_SIZE;
 // 減色時の色数
 const K_NUM = 16;
+// MGOでのカラーパレット用の除数
+const DIVISOR = 8.21;
 
 export default class Cluster {
   constructor() {
@@ -36,7 +38,6 @@ export default class Cluster {
     });
 
     this.runBtn.addEventListener('click', (e) => {
-      e.preventDefault();
       this.run();
     });
 
@@ -64,7 +65,7 @@ export default class Cluster {
     // ここから表示切り替え
     document.getElementById('upload-area').classList.add('hide');
     document.querySelector('.cropper-area').classList.add('show');
-    document.getElementById('run-btn').classList.add('show');
+    document.querySelector('.run-btn-area').classList.add('show');
     document.querySelector('.result-area').classList.add('show');
     document.querySelector('.colors').classList.add('show');
     document.querySelector('.color-code').classList.add('show');
@@ -90,7 +91,6 @@ export default class Cluster {
           aspectRatio: 1,
           preview: '.cropper-preview__img',
           crop: (e) => {
-
             this.hiddenCanvas = document.createElement('canvas');
             let ctx = this.hiddenCanvas.getContext('2d');
             ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
@@ -121,11 +121,16 @@ export default class Cluster {
     this.clearHighlight();
 
     let ctx = this.hiddenCanvas.getContext('2d');
-    let data = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    let data = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE).data;
     let len = CANVAS_SIZE * CANVAS_SIZE;
     let w = [];
     for (let i = 0; i < len; i++) {
-      w[i] = [data.data[(i*4)], data.data[(i*4)+1], data.data[(i*4)+2], data.data[(i*4)+3]];
+      w[i] = [
+        data[(i*4)],
+        data[(i*4)+1],
+        data[(i*4)+2],
+        data[(i*4)+3]
+      ];
     }
 
     kmeans.clusterize(w, {k: K_NUM}, (err, res) => {
@@ -243,11 +248,11 @@ export default class Cluster {
     let green = document.querySelector('.color-code-list__item--green');
     let blue = document.querySelector('.color-code-list__item--blue');
     red.querySelector('.color-code__bar-inner').style.width = `${ (color[0] / 255) * 100}%`;
-    red.querySelector('.color-code__number').innerHTML = `${ Math.round(color[0] / 8.21) }(${ color[0] })`;
+    red.querySelector('.color-code__number').innerHTML = `${ Math.round(color[0] / DIVISOR) } (${ color[0] })`;
     green.querySelector('.color-code__bar-inner').style.width = `${ (color[1] / 255) * 100}%`;
-    green.querySelector('.color-code__number').innerHTML = `${ Math.round(color[1] / 8.21) }(${ color[1] })`;
+    green.querySelector('.color-code__number').innerHTML = `${ Math.round(color[1] / DIVISOR) } (${ color[1] })`;
     blue.querySelector('.color-code__bar-inner').style.width = `${ (color[2] / 255) * 100}%`;
-    blue.querySelector('.color-code__number').innerHTML = `${ Math.round(color[2] / 8.21) }(${ color[2] })`;
+    blue.querySelector('.color-code__number').innerHTML = `${ Math.round(color[2] / DIVISOR) } (${ color[2] })`;
 
 
     // canvasの選択色のハイライト
@@ -260,6 +265,10 @@ export default class Cluster {
     for (let i = 0; i < len; i++) {
       if (this.highlightList[i] != colorIndex) {
         ctx.fillRect((i % CANVAS_SIZE) * GRID_SIZE, Math.floor(i / CANVAS_SIZE) * GRID_SIZE, GRID_SIZE, GRID_SIZE);
+      } else {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+        ctx.rect((i % CANVAS_SIZE) * GRID_SIZE, Math.floor(i / CANVAS_SIZE) * GRID_SIZE, GRID_SIZE, GRID_SIZE);
+        ctx.stroke();
       }
     }
   }
