@@ -17,71 +17,73 @@
         </label>
       </div>
     </form>
-    <div class="cropper-area">
-      <div class="cropper-image">
-        <canvas id="cropper-canvas"></canvas>
-      </div>
-      <div class="cropper-preview">
-        <div class="cropper-preview__inner">
-          <div class="cropper-preview__img"></div>
+    <div id="uploaded-area">
+      <div class="cropper-area">
+        <div class="cropper-image">
+          <canvas id="cropper-canvas"></canvas>
+        </div>
+        <div class="cropper-preview">
+          <div class="cropper-preview__inner">
+            <div class="cropper-preview__img"></div>
+          </div>
         </div>
       </div>
-    </div>
-    <!-- 減色後の表示 -->
-    <div class="result-area" id="result-area">
-      <canvas id="result" width="320" height="320"></canvas>
-      <canvas id="result-grid" width="320" height="320"></canvas>
-      <canvas id="result-highlight" width="320" height="320"></canvas>
-    </div>
-    <!-- カラーリスト -->
-    <div class="colors">
-      <ul class="colors-list">
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-      </ul>
-    </div>
-    <!-- カラーコード -->
-    <div class="color-code">
-      <ul class="color-code-list">
-        <li class="color-code-list__item color-code-list__item--red">
-          <span class="color-code__head">R</span>
-          <div class="color-code__bar">
-            <div class="color-code__bar-inner"></div>
-          </div>
-          <div class="color-code__number">0 (0)</div>
-        </li>
-        <li class="color-code-list__item color-code-list__item--green">
-          <span class="color-code__head">G</span>
-          <div class="color-code__bar">
-            <div class="color-code__bar-inner"></div>
-          </div>
-          <div class="color-code__number">0 (0)</div>
-        </li>
-        <li class="color-code-list__item color-code-list__item--blue">
-          <span class="color-code__head">B</span>
-          <div class="color-code__bar">
-            <div class="color-code__bar-inner"></div>
-          </div>
-          <div class="color-code__number">0 (0)</div>
-        </li>
-      </ul>
-    </div>
-    <div class="run-btn-area">
-      <a id="run-btn" href="#result-area">Run</a>
+      <!-- 減色後の表示 -->
+      <div class="result-area" id="result-area">
+        <canvas id="result" width="320" height="320"></canvas>
+        <canvas id="result-grid" width="320" height="320"></canvas>
+        <canvas id="result-highlight" width="320" height="320"></canvas>
+      </div>
+      <!-- カラーリスト -->
+      <div class="colors">
+        <ul class="colors-list">
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </div>
+      <!-- カラーコード -->
+      <div class="color-code">
+        <ul class="color-code-list">
+          <li class="color-code-list__item color-code-list__item--red">
+            <span class="color-code__head">R</span>
+            <div class="color-code__bar">
+              <div id="red-cc-bar" class="color-code__bar-inner"></div>
+            </div>
+            <div id="red-cc-number" class="color-code__number">0 (0)</div>
+          </li>
+          <li class="color-code-list__item color-code-list__item--green">
+            <span class="color-code__head">G</span>
+            <div class="color-code__bar">
+              <div id="green-cc-bar" class="color-code__bar-inner"></div>
+            </div>
+            <div id="green-cc-number" class="color-code__number">0 (0)</div>
+          </li>
+          <li class="color-code-list__item color-code-list__item--blue">
+            <span class="color-code__head">B</span>
+            <div class="color-code__bar">
+              <div id="blue-cc-bar" class="color-code__bar-inner"></div>
+            </div>
+            <div id="blue-cc-number" class="color-code__number">0 (0)</div>
+          </li>
+        </ul>
+      </div>
+      <div class="run-btn-area">
+        <a id="run-btn" href="#result-area">Run</a>
+      </div>
     </div>
   </body>
 </html>

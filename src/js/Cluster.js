@@ -15,29 +15,36 @@ const DIVISOR = 8.21;
 export default class Cluster {
   constructor() {
     this.cropper = null;
-    this.uploadArea = document.getElementById('upload-area');
-    this.runBtn = document.getElementById('run-btn');
-    this.hiddenCanvas = null;
+
+    // カラーコードのリスト
     this.highlightList = [];
     this.colorList = [];
+
+    // canvas
+    this.canvasHidden = null;
+    this.canvasHighlight = document.getElementById('result-highlight');
+    this.canvasGrid = document.getElementById('result-grid');
+    this.canvasResult = document.querySelector('#result');
+    this.canvasCropper = document.getElementById('cropper-canvas');
   }
 
   /**
    * 初期化処理
    */
   init() {
-    this.uploadArea.addEventListener('change', (e) => {
+    let uploadArea = document.getElementById('upload-area');
+    uploadArea.addEventListener('change', (e) => {
       this.changeHandler(e);
     });
-    this.uploadArea.addEventListener('dragenter', (e) => { e.preventDefault(); });
-    this.uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); });
-    this.uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); });
-    this.uploadArea.addEventListener('drop', (e) => {
+    uploadArea.addEventListener('dragenter', (e) => { e.preventDefault(); });
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); });
+    uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); });
+    uploadArea.addEventListener('drop', (e) => {
       e.preventDefault();
       this.changeHandler(e, e.dataTransfer.files[0]);
     });
 
-    this.runBtn.addEventListener('click', (e) => {
+    document.getElementById('run-btn').addEventListener('click', (e) => {
       this.run();
     });
 
@@ -62,39 +69,33 @@ export default class Cluster {
       return;
     }
 
-    // ここから表示切り替え
-    document.getElementById('upload-area').classList.add('hide');
-    document.querySelector('.cropper-area').classList.add('show');
-    document.querySelector('.run-btn-area').classList.add('show');
-    document.querySelector('.result-area').classList.add('show');
-    document.querySelector('.colors').classList.add('show');
-    document.querySelector('.color-code').classList.add('show');
-    // ここまで表示切り替え
-
     let image = new Image();
-    let canvas = document.getElementById('cropper-canvas');
     let fileReader = new FileReader();
 
     fileReader.onload = (e) => {
       let base64 = e.target.result;
 
       image.onload = () => {
-        canvas.width = image.width;
-        canvas.height = image.height;
-        let originalCtx = canvas.getContext('2d');
+        this.canvasCropper.width = image.width;
+        this.canvasCropper.height = image.height;
+        let originalCtx = this.canvasCropper.getContext('2d');
 
         // s:sourceImage, d:destinationCanvas
         // ctx.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
         originalCtx.drawImage(image, 0, 0, image.width, image.height, 0, 0, image.width, image.height);
 
-        this.cropper = new Cropper(canvas, {
+        // cropperの表示
+        this.showResult();
+
+        // cropperの設定
+        this.cropper = new Cropper(this.canvasCropper, {
           aspectRatio: 1,
           preview: '.cropper-preview__img',
           crop: (e) => {
-            this.hiddenCanvas = document.createElement('canvas');
-            let ctx = this.hiddenCanvas.getContext('2d');
+            this.canvasHidden = document.createElement('canvas');
+            let ctx = this.canvasHidden.getContext('2d');
             ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-            ctx.drawImage(canvas,
+            ctx.drawImage(this.canvasCropper,
               e.detail.x,
               e.detail.y,
               e.detail.width,
@@ -120,7 +121,7 @@ export default class Cluster {
     // 前のハイライトをクリア
     this.clearHighlight();
 
-    let ctx = this.hiddenCanvas.getContext('2d');
+    let ctx = this.canvasHidden.getContext('2d');
     let data = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE).data;
     let len = CANVAS_SIZE * CANVAS_SIZE;
     let w = [];
@@ -137,13 +138,16 @@ export default class Cluster {
       if (err) {
         console.error(err);
       } else {
+        // クラスタの多い順にソート
+        res.sort((a, b) => { return b.cluster.length - a.cluster.length; });
 
         // カラーコードを取得
         for (let k = 0; k < K_NUM; k++) {
           this.colorList[k] = res[k].centroid;
         }
 
-        let resultCtx = document.querySelector('#result').getContext('2d');
+
+        let resultCtx = this.canvasResult.getContext('2d');
         resultCtx.clearRect(0, 0, 320, 320);
         resultCtx.beginPath();
 
@@ -202,8 +206,8 @@ export default class Cluster {
    * グリッドの描画
    */
   drawGrid() {
-    let ctx = document.getElementById('result-grid').getContext('2d');
-    ctx.strokeStyle = 'rgba(255, 255, 255, .4)';
+    let ctx = this.canvasGrid.getContext('2d');
+    ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
 
     let size = CANVAS_DISP_SIZE;
     for (let i = 0; i <= size; i+=GRID_SIZE) {
@@ -224,7 +228,7 @@ export default class Cluster {
    * ハイライトのクリア
    */
    clearHighlight() {
-     let ctx = document.getElementById('result-highlight').getContext('2d');
+     let ctx = this.canvasHighlight.getContext('2d');
      ctx.clearRect(0, 0, CANVAS_DISP_SIZE, CANVAS_DISP_SIZE);
    }
 
@@ -243,33 +247,49 @@ export default class Cluster {
     }
 
     // カラーコードの表示
-    let color = this.colorList[colorIndex];
-    let red = document.querySelector('.color-code-list__item--red');
-    let green = document.querySelector('.color-code-list__item--green');
-    let blue = document.querySelector('.color-code-list__item--blue');
-    red.querySelector('.color-code__bar-inner').style.width = `${ (color[0] / 255) * 100}%`;
-    red.querySelector('.color-code__number').innerHTML = `${ Math.round(color[0] / DIVISOR) } (${ color[0] })`;
-    green.querySelector('.color-code__bar-inner').style.width = `${ (color[1] / 255) * 100}%`;
-    green.querySelector('.color-code__number').innerHTML = `${ Math.round(color[1] / DIVISOR) } (${ color[1] })`;
-    blue.querySelector('.color-code__bar-inner').style.width = `${ (color[2] / 255) * 100}%`;
-    blue.querySelector('.color-code__number').innerHTML = `${ Math.round(color[2] / DIVISOR) } (${ color[2] })`;
-
+    this.updateColorCode(this.colorList[colorIndex]);
 
     // canvasの選択色のハイライト
-    let ctx = document.getElementById('result-highlight').getContext('2d');
+    let ctx = this.canvasHighlight.getContext('2d');
     ctx.clearRect(0, 0, CANVAS_DISP_SIZE, CANVAS_DISP_SIZE);
     ctx.beginPath();
     ctx.fillStyle = `rgba(0, 0, 0, .7)`;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
 
     let len = CANVAS_SIZE * CANVAS_SIZE;
     for (let i = 0; i < len; i++) {
       if (this.highlightList[i] != colorIndex) {
         ctx.fillRect((i % CANVAS_SIZE) * GRID_SIZE, Math.floor(i / CANVAS_SIZE) * GRID_SIZE, GRID_SIZE, GRID_SIZE);
       } else {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
         ctx.rect((i % CANVAS_SIZE) * GRID_SIZE, Math.floor(i / CANVAS_SIZE) * GRID_SIZE, GRID_SIZE, GRID_SIZE);
         ctx.stroke();
       }
     }
+  }
+
+  /**
+   * カラーコードの更新
+   */
+  updateColorCode(color) {
+    document.getElementById('red-cc-bar').style.width = `${ (color[0] / 255) * 100}%`;
+    document.getElementById('red-cc-number').innerHTML = `${ Math.round(color[0] / DIVISOR) } (${ color[0] })`;
+    document.getElementById('green-cc-bar').style.width = `${ (color[1] / 255) * 100}%`;
+    document.getElementById('green-cc-number').innerHTML = `${ Math.round(color[1] / DIVISOR) } (${ color[1] })`;
+    document.getElementById('blue-cc-bar').style.width = `${ (color[2] / 255) * 100}%`;
+    document.getElementById('blue-cc-number').innerHTML = `${ Math.round(color[2] / DIVISOR) } (${ color[2] })`;
+  }
+
+  /**
+   * 減色部分の表示
+   */
+  showResult() {
+    document.getElementById('upload-area').classList.add('hide');
+    document.getElementById('uploaded-area').classList.add('show');
+
+    // document.querySelector('.cropper-area').classList.add('show');
+    // document.querySelector('.run-btn-area').classList.add('show');
+    // document.querySelector('.result-area').classList.add('show');
+    // document.querySelector('.colors').classList.add('show');
+    // document.querySelector('.color-code').classList.add('show');
   }
 }

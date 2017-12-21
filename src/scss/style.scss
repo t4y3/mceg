@@ -78,18 +78,24 @@ body {
 
 
 /**
+ * アップロード後のエリア
+ */
+#uploaded-area {
+  display: none;
+  &.show {
+    display: block;
+  }
+}
+
+/**
  * cropperエリア
  */
 .cropper-area {
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   width: 70%;
   margin: 32px auto 32px;
-
-  &.show {
-    display: flex;
-  }
 
   .cropper-image {
     max-width: 100%;
@@ -128,7 +134,7 @@ body {
  * 減色実行ボタン
  */
 .run-btn-area {
-  display: none;
+  display: block;
   width: 100%;
   padding: 16px 0;
   position: fixed;
@@ -138,10 +144,6 @@ body {
   text-align: center;
   background-color: rgba(140, 140, 140, 0.5);
   border-top: 1px solid #fff;
-
-  &.show {
-    display: block;
-  }
 
   #run-btn {
     display: block;
@@ -163,15 +165,11 @@ body {
  * 減色後の画像表示エリア
  */
 .result-area {
-  display: none;
+  display: block;
   width: 320px;
   height: 320px;
   margin: 0 auto 26px;
   position: relative;
-
-  &.show {
-    display: block;
-  }
 
   #result {
     position: absolute;
@@ -199,14 +197,10 @@ body {
  * 減色後のカラーリスト
  */
 .colors {
-  display: none;
+  display: block;
   width: 300px;
   margin: 0 auto;
   margin-bottom: 32px;
-
-  &.show {
-    display: block;
-  }
 
   .colors-list {
     display: flex;
@@ -234,14 +228,10 @@ body {
  * カラーコード
  */
 .color-code {
-  display: none;
+  display: block;
   width: 300px;
   margin: 0 auto 32px;
   color: #fff;
-
-  &.show {
-    display: block;
-  }
 
   .color-code-list__item {
     display: flex;
