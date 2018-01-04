@@ -1,5 +1,5 @@
-import kmeans from 'node-kmeans';
 import Cropper from 'cropperjs'
+import MedianCut from './MedianCut';
 
 // canvasサイズ
 const CANVAS_SIZE = 32;
@@ -134,41 +134,35 @@ export default class Cluster {
       ];
     }
 
-    kmeans.clusterize(w, {k: K_NUM}, (err, res) => {
-      if (err) {
-        console.error(err);
-      } else {
-        // クラスタの多い順にソート
-        res.sort((a, b) => { return b.cluster.length - a.cluster.length; });
+    let imagedata = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    // Obtain color information of image (画像のカラー情報の取得)
+    let colors = this.getColorInfo(imagedata);
 
-        // カラーコードを取得
-        for (let k = 0; k < K_NUM; k++) {
-          this.colorList[k] = res[k].centroid;
+    // reduced color (減色)
+    let medianCut = new MedianCut(imagedata, colors);
+    medianCut.run(16, true);
+
+    let resultCtx = this.canvasResult.getContext('2d');
+    resultCtx.clearRect(0, 0, 320, 320);
+    resultCtx.beginPath();
+
+    // カラーリストの取得
+    this.colorList = medianCut.rep_color;
+
+    for (let i = 0; i < len; i++) {
+      resultCtx.fillStyle = `rgba(${ imagedata.data[i*4] }, ${ imagedata.data[i*4+1] }, ${ imagedata.data[i*4+2] }, ${ imagedata.data[i*4+3] })`;
+      resultCtx.fillRect((i % CANVAS_SIZE) * GRID_SIZE, Math.floor(i / CANVAS_SIZE) * GRID_SIZE, GRID_SIZE, GRID_SIZE);
+
+      for (let j = 0, jLen = this.colorList.length; j < jLen; j++) {
+        if (imagedata.data[i*4] == this.colorList[j]['r']
+            && imagedata.data[i*4+1] == this.colorList[j]['g']
+              && imagedata.data[i*4+2] == this.colorList[j]['b']) {
+                this.highlightList[i] = j;
         }
-
-
-        let resultCtx = this.canvasResult.getContext('2d');
-        resultCtx.clearRect(0, 0, 320, 320);
-        resultCtx.beginPath();
-
-        let len = CANVAS_SIZE * CANVAS_SIZE;
-        for (let i = 0; i < len; i++) {
-          let color;
-          for (let k = 0; k < K_NUM; k++) {
-            if (res[k].cluster.includes(w[i])) {
-              color = res[k].centroid;
-              this.highlightList[i] = k;
-              break;
-            }
-          }
-          resultCtx.fillStyle = `rgba(${ color[0] }, ${ color[1] }, ${ color[2] }, ${ color[3] })`;
-          resultCtx.fillRect((i % CANVAS_SIZE) * GRID_SIZE, Math.floor(i / CANVAS_SIZE) * GRID_SIZE, GRID_SIZE, GRID_SIZE);
-        }
-
-        // カラーリストの表示
-        this.showColors(res);
       }
-    });
+    }
+
+    this.showColors();
   }
 
   /**
@@ -188,7 +182,7 @@ export default class Cluster {
     let fragment = document.createDocumentFragment();
     for(let i = 0, len = this.colorList.length; i < len; i++){
       let li = document.createElement('li');
-      li.style.backgroundColor = `rgba(${ this.colorList[i][0] }, ${ this.colorList[i][1] }, ${ this.colorList[i][2] }, ${ this.colorList[i][3] })`
+      li.style.backgroundColor = `rgba(${ this.colorList[i]['r'] }, ${ this.colorList[i]['g'] }, ${ this.colorList[i]['b'] }, 1)`
       fragment.appendChild(li); // fragmentの追加する
     }
     list.appendChild(fragment);
@@ -271,12 +265,12 @@ export default class Cluster {
    * カラーコードの更新
    */
   updateColorCode(color) {
-    document.getElementById('red-cc-bar').style.width = `${ (color[0] / 255) * 100}%`;
-    document.getElementById('red-cc-number').innerHTML = `${ Math.round(color[0] / DIVISOR) } (${ color[0] })`;
-    document.getElementById('green-cc-bar').style.width = `${ (color[1] / 255) * 100}%`;
-    document.getElementById('green-cc-number').innerHTML = `${ Math.round(color[1] / DIVISOR) } (${ color[1] })`;
-    document.getElementById('blue-cc-bar').style.width = `${ (color[2] / 255) * 100}%`;
-    document.getElementById('blue-cc-number').innerHTML = `${ Math.round(color[2] / DIVISOR) } (${ color[2] })`;
+    document.getElementById('red-cc-bar').style.width = `${ (color['r'] / 255) * 100}%`;
+    document.getElementById('red-cc-number').innerHTML = `${ Math.round(color['r'] / DIVISOR) } (${ color['r'] })`;
+    document.getElementById('green-cc-bar').style.width = `${ (color['g'] / 255) * 100}%`;
+    document.getElementById('green-cc-number').innerHTML = `${ Math.round(color['g'] / DIVISOR) } (${ color['g'] })`;
+    document.getElementById('blue-cc-bar').style.width = `${ (color['b'] / 255) * 100}%`;
+    document.getElementById('blue-cc-number').innerHTML = `${ Math.round(color['b'] / DIVISOR) } (${ color['b'] })`;
   }
 
   /**
@@ -285,11 +279,43 @@ export default class Cluster {
   showResult() {
     document.getElementById('upload-area').classList.add('hide');
     document.getElementById('uploaded-area').classList.add('show');
+  }
 
-    // document.querySelector('.cropper-area').classList.add('show');
-    // document.querySelector('.run-btn-area').classList.add('show');
-    // document.querySelector('.result-area').classList.add('show');
-    // document.querySelector('.colors').classList.add('show');
-    // document.querySelector('.color-code').classList.add('show');
+
+  /**
+   * カラー情報の取得
+   */
+  getColorInfo(imagedata) {
+    let height = imagedata.height;
+    let width = imagedata.width;
+    let raw = imagedata.data;
+
+    // 使用色/使用回数(面積)を取得
+    let cnt = 0;
+    let uses_colors = new Object;
+
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        let key = raw[cnt] + ',' + raw[cnt + 1] + ',' + raw[cnt + 2];
+        if (!uses_colors[key]) uses_colors[key] = 1;
+        else uses_colors[key] += 1;
+
+        cnt = cnt + 4;
+      }
+    }
+
+    // 連想配列を配列へ設定
+    let rgb;
+    let colors = new Array();
+    for (let key in uses_colors) {
+      rgb = key.split(",");
+      colors[colors.length] = {
+        'r': parseInt(rgb[0], 10),
+        'g': parseInt(rgb[1], 10),
+        'b': parseInt(rgb[2], 10),
+        'uses': uses_colors[key]
+      }; // 使用数
+    }
+    return colors;
   }
 }
