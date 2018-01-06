@@ -1,5 +1,5 @@
 import Cropper from 'cropperjs'
-import MedianCut from './MedianCut';
+import MedianCut from 'mediancut';
 
 // canvasサイズ
 const CANVAS_SIZE = 32;
@@ -136,18 +136,17 @@ export default class Cluster {
 
     let imagedata = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
     // Obtain color information of image (画像のカラー情報の取得)
-    let colors = this.getColorInfo(imagedata);
+    // let colors = this.getColorInfo(imagedata);
 
     // reduced color (減色)
-    let medianCut = new MedianCut(imagedata, colors);
-    medianCut.run(16, true);
+    let medianCut = new MedianCut(imagedata);
+    medianCut.run(16);
+    // カラーリストの取得
+    this.colorList = medianCut.getColors();
 
     let resultCtx = this.canvasResult.getContext('2d');
     resultCtx.clearRect(0, 0, 320, 320);
     resultCtx.beginPath();
-
-    // カラーリストの取得
-    this.colorList = medianCut.rep_color;
 
     for (let i = 0; i < len; i++) {
       resultCtx.fillStyle = `rgba(${ imagedata.data[i*4] }, ${ imagedata.data[i*4+1] }, ${ imagedata.data[i*4+2] }, ${ imagedata.data[i*4+3] })`;
