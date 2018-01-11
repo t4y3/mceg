@@ -140,7 +140,7 @@ export default class Cluster {
 
     // reduced color (減色)
     let medianCut = new MedianCut(imagedata);
-    medianCut.run(16);
+    imagedata = medianCut.run(16);
     // カラーリストの取得
     this.colorList = medianCut.getColors();
 
