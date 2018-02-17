@@ -4,7 +4,7 @@ import MedianCut from 'mediancut';
 // canvasサイズ
 const CANVAS_SIZE = 32;
 // 表示時のグリッドのサイズ
-const GRID_SIZE = 10;
+const GRID_SIZE = 20;
 // 表示用canvasサイズ
 const CANVAS_DISP_SIZE = CANVAS_SIZE * GRID_SIZE;
 // 減色時の色数
@@ -205,6 +205,13 @@ export default class Cluster {
     let size = CANVAS_DISP_SIZE;
     for (let i = 0; i <= size; i+=GRID_SIZE) {
       if (i != 0 && i != size) {
+        if (i % 160 === 0) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+          ctx.lineWidth = 6;
+        } else {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+          ctx.lineWidth = 1;
+        }
         // 縦
         ctx.beginPath();
         ctx.moveTo(i, 0);
