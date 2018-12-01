@@ -142,7 +142,7 @@ export default class Cluster {
     let medianCut = new MedianCut(imagedata);
     imagedata = medianCut.run(16);
     // カラーリストの取得
-    this.colorList = medianCut.getColors();
+    this.colorList = medianCut.getIndexColors();
 
     let resultCtx = this.canvasResult.getContext('2d');
     resultCtx.clearRect(0, 0, 320, 320);
