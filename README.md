@@ -17,9 +17,6 @@ npm i
 npm run start
 ```
 
-#### Library
-- [Superfine](https://github.com/jorgebucaran/superfine) - View 
-
 ## Deployment
 ```sh
 # Build
