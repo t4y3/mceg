@@ -1,0 +1,76 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+html {
+  font-family: "Roboto Mono", monospace, sans-serif;
+}
+
+.aspect {
+  position: relative;
+}
+
+.aspect::before {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+
+.spinner {
+  border-top-color: #4a5568;
+  animation: spinner 1.6s linear infinite;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#colors {
+  margin: -8px;
+}
+
+#colors .color {
+  width: calc(100% / 8);
+  pointer-events: auto;
+  padding: 8px;
+  position: relative;
+}
+
+#colors .color-check {
+  width: calc(100% / 8);
+  pointer-events: auto;
+  padding: 8px;
+  position: relative;
+}
+
+#colors .color-check svg {
+  width: 100%;
+}
+
+/* TODO: tailwindを拡張 */
+@media (min-width: 640px) {
+  #colors {
+    margin: -4px;
+  }
+
+  #colors .color {
+    width: calc(100% / 16);
+    padding: 4px;
+  }
+
+  #colors .color-check {
+    width: calc(100% / 16);
+    padding: 4px;
+  }
+}
+
+#colors .color.selected div {
+  border: 4px solid #b87150;
+}
